@@ -1,5 +1,6 @@
-var express = require('express');
-var app = express();
+var express = require('express'),
+    app     = express(),
+    request = require("request");
 
 // set the port of our application
 // process.env.PORT lets the port be set by Heroku
@@ -18,6 +19,33 @@ app.get('/', function(req, res) {
 	res.render('index');
 });
 
+// get request start here
+app.get('/convert/csv/to/json', csv2Json);
+
 app.listen(port, function() {
 	console.log('Our app is running on http://localhost:' + port);
 });
+
+
+// api function defination start here
+function csv2Json(req, res, next) {
+
+  // get csv file and update json
+  request.get(req.query.q, function (error, response, body) {
+
+    if (!error && response.statusCode == 200) {
+
+        var csv = body;
+        res.send(200,csv);
+        next();
+        return;
+    }
+    else {
+
+      res.status(response.statusCode).send(body)
+      next();
+      return;
+    }
+
+  });
+}
