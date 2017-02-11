@@ -67,9 +67,9 @@ function csv2Json(req, res, next) {
 
           csvToJson({noheader:true})
           .fromString(body)
-          .on('data',(data)=>{ // this func will be called 3 times 
+          .on('end_parsed',(jsonArrObj)=>{ // this func will be called 3 times 
 
-             csvJson = data.toString('utf8')
+             csvJson = jsonArrObj;
           })
           .on('done',(data)=>{
 
