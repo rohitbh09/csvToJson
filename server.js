@@ -63,15 +63,15 @@ function csv2Json(req, res, next) {
       // check error and responce state
         if (!error && response.statusCode == 200) {
 
-          var csvJson = [];
+          var csvJson = "";
 
           csvToJson({noheader:true})
           .fromString(body)
-          .on('json',(jsonObj)=>{ // this func will be called 3 times 
+          .on('data',(data)=>{ // this func will be called 3 times 
 
-              csvJson.push(jsonObj)
+             csvJson = data.toString('utf8')
           })
-          .on('done',()=>{
+          .on('done',(data)=>{
 
             console.log("REQUEST done");
               //parsing finished 
