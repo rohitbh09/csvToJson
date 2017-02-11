@@ -3,7 +3,6 @@ var express  = require('express'),
     request  = require("request"),
     Readable = require('stream').Readable,
     uuidV4   = require('uuid/v4'),
-    validUrl = require('valid-url'),
     rs       = Readable();
 
 var csv2json = require("./libs/csv2json.js");
@@ -33,40 +32,76 @@ app.listen(port, function() {
 	console.log('Our app is running on http://localhost:' + port);
 });
 
+function log( statusCode, log, output) {
 
+
+  // create object for log report
+    var response  = {
+                      "STATUS_CODE" : statusCode || "N/A",
+                      "LOG"         : log        || "N/A",
+                      "OUTPUT"      : output     || "N/A"
+                    };
+
+  // console the log object
+    console.log(response);
+}
 // api function defination start here
 function csv2Json(req, res, next) {
 
-  // check file input
-  if( req.params.q == null || req.params.q   == "" ){
+  // check file input url
+  if( req.query.q == null || req.query.q   == "" ){
 
-    res.status(500).send("Bad Parameters Supplied");
-    return;
+    // responce return
+      res.status(500).send("Bad Parameters Supplied");
+    
+    // log the state
+      log(500, "BAD_PARAMETERS_SUPPLIED", req.query);
+      return;
   }
 
-
   // get csv file and update json
-  request.get(req.query.q, function (error, response, body) {
+    request.get(req.query.q, function (error, response, body) {
 
-    // check error and responce state
-    if (!error && response.statusCode == 200) {
+      // check error and responce state
+        if (!error && response.statusCode == 200) {
 
-        var convertedJson = csv2json.convert( body );
+            var convertedJson = csv2json.convert( body );
 
-        var fileUUid = uuidV4();
 
-        res.writeHead(200, {
-          'Content-Type': 'text/json',
-          "Content-Disposition": "attachment; filename=Josn-" + fileUUid + ".json"
-        });
-        res.end( convertedJson );
-        return;
-    }
-    else {
+            /*
 
-      res.status(response.statusCode).send(body)
-      next();
-      return;
-    }
-  });
+            if you want to retun json file use this code 
+            var fileUUid = uuidV4();
+          
+            res.writeHead(200, {
+              'Content-Type': 'text/json',
+              "Content-Disposition": "attachment; filename=Josn-" + fileUUid + ".json"
+            });
+            res.end( convertedJson );
+
+            */
+
+            res.status(200).send(convertedJson)
+            next();
+            return;
+        }
+        else {
+
+          // log the state
+            // log(response.statusCode, "BAD_REQUEST",body);
+            if( error ){
+
+              log( 503, "BAD_REQUEST", error);  
+            }
+            else {
+
+              log( 503, "BAD_REQUEST");   
+            }
+
+          // responce return
+            res.status(503).send("BAD_REQUEST")
+            next();
+          return;
+        }
+    });
 }
