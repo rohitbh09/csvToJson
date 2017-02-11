@@ -63,20 +63,24 @@ function csv2Json(req, res, next) {
       // check error and responce state
         if (!error && response.statusCode == 200) {
 
-          var csvJson = "";
+          var first = true;
+          res.setHeader("Content-Type", "application/json");
+          res.write('[');
 
           csvToJson({noheader:true})
           .fromString(body)
           .on('json',(jsonArrObj)=>{ // this func will be called 3 times 
 
-            res.write(jsonArrObj);
+            var prefix = first ? '' : ', ';
+            res.write( prefix + JSON.stringify(jsonArrObj));
+            first = false;
             return;
 
           })
           .on('done',(data)=>{
 
-            res.status(200).send(jsonArrObj);
-            next();
+            res.write(']');
+            res.end();
             return;            
           });
         }
