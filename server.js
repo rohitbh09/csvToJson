@@ -1,6 +1,10 @@
-var express = require('express'),
-    app     = express(),
-    request = require("request");
+var express  = require('express'),
+    app      = express(),
+    request  = require("request"),
+    Readable = require('stream').Readable,
+    rs       = Readable();
+
+var csv2json = require("./libs/csv2json.js");
 
 // set the port of our application
 // process.env.PORT lets the port be set by Heroku
@@ -23,6 +27,7 @@ app.get('/', function(req, res) {
 app.get('/convert/csv/to/json', csv2Json);
 
 app.listen(port, function() {
+
 	console.log('Our app is running on http://localhost:' + port);
 });
 
@@ -33,11 +38,12 @@ function csv2Json(req, res, next) {
   // get csv file and update json
   request.get(req.query.q, function (error, response, body) {
 
+    // check error and responce state
     if (!error && response.statusCode == 200) {
 
-        var csv = body;
-        res.send(200,csv);
-        next();
+        var convertedJson = csv2json.convert( body );
+
+        res.status(200).send( convertedJson );
         return;
     }
     else {
@@ -46,6 +52,5 @@ function csv2Json(req, res, next) {
       next();
       return;
     }
-
   });
 }
