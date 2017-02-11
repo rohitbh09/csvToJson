@@ -10,6 +10,8 @@
     "express": "~4.9.8",
     "jsonfile": "^2.4.0",
     "request": "^2.65.0",
-    "stream": "0.0.2"
+    "stream": "0.0.2",
+    "uuid": "^3.0.1",
+    "valid-url": "^1.0.9"
   }
 }

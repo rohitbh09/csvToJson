@@ -2,6 +2,8 @@ var express  = require('express'),
     app      = express(),
     request  = require("request"),
     Readable = require('stream').Readable,
+    uuidV4   = require('uuid/v4'),
+    validUrl = require('valid-url'),
     rs       = Readable();
 
 var csv2json = require("./libs/csv2json.js");
@@ -35,6 +37,14 @@ app.listen(port, function() {
 // api function defination start here
 function csv2Json(req, res, next) {
 
+  // check file input
+  if( req.params.q == null || req.params.q   == "" ){
+
+    res.status(500).send("Bad Parameters Supplied");
+    return;
+  }
+
+
   // get csv file and update json
   request.get(req.query.q, function (error, response, body) {
 
@@ -43,7 +53,13 @@ function csv2Json(req, res, next) {
 
         var convertedJson = csv2json.convert( body );
 
-        res.status(200).send( convertedJson );
+        var fileUUid = uuidV4();
+
+        res.writeHead(200, {
+          'Content-Type': 'text/json',
+          "Content-Disposition": "attachment; filename=Josn-" + fileUUid + ".json"
+        });
+        res.end( convertedJson );
         return;
     }
     else {
