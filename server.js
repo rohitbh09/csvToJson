@@ -69,15 +69,14 @@ function csv2Json(req, res, next) {
           .fromString(body)
           .on('end_parsed',(jsonArrObj)=>{ // this func will be called 3 times 
 
-             csvJson = jsonArrObj;
+            res.status(200).send(jsonArrObj);
+            next();
+            return;
+
           })
           .on('done',(data)=>{
 
-            console.log("REQUEST done");
-              //parsing finished 
-              res.status(200).send(csvJson);
-              next();
-              return;
+            
           });
         }
         else {
