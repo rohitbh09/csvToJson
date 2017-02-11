@@ -67,16 +67,17 @@ function csv2Json(req, res, next) {
 
           csvToJson({noheader:true})
           .fromString(body)
-          .on('end_parsed',(jsonArrObj)=>{ // this func will be called 3 times 
+          .on('json',(jsonArrObj)=>{ // this func will be called 3 times 
 
-            res.status(200).send(jsonArrObj);
-            next();
+            res.write(jsonArrObj);
             return;
 
           })
           .on('done',(data)=>{
 
-            
+            res.status(200).send(jsonArrObj);
+            next();
+            return;            
           });
         }
         else {
