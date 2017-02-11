@@ -81,6 +81,7 @@ function csv2Json(req, res, next) {
 
             */
 
+            res.setHeader("Content-Type", "application/json");
             res.status(200).send(convertedJson)
             next();
             return;
