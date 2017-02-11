@@ -1,8 +1,7 @@
 var express   = require('express'),
     app       = express(),
     request   = require("request"),
-    csvToJson = require('csvtojson'),
-    uuidV4    = require('uuid/v4');
+    csvToJson = require('csvtojson');
 
 
 // set the port of our application
@@ -65,14 +64,21 @@ function csv2Json(req, res, next) {
 
           var first = true;
           res.setHeader("Content-Type", "application/json");
-          res.write('[');
 
           csvToJson({noheader:true})
           .fromString(body)
           .on('json',(jsonArrObj)=>{ // this func will be called 3 times 
 
             var prefix = first ? '' : ', ';
-            res.write( prefix + JSON.stringify(jsonArrObj));
+            if ( prefix ){
+
+              res.write('[');
+              res.write( prefix + JSON.stringify(jsonArrObj));
+            }
+            else {
+
+              res.write( JSON.stringify(jsonArrObj));
+            }
             first = false;
             return;
 
