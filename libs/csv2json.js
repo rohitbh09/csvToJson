@@ -1,3 +1,6 @@
+var csvtojson = require('csvtojson');
+
+
 exports.convert = function( csvString ) {
 
     // define variable  for josn 

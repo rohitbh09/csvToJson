@@ -1,11 +1,9 @@
-var express  = require('express'),
-    app      = express(),
-    request  = require("request"),
-    Readable = require('stream').Readable,
-    uuidV4   = require('uuid/v4'),
-    rs       = Readable();
+var express   = require('express'),
+    app       = express(),
+    request   = require("request"),
+    csvToJson = require('csvtojson'),
+    uuidV4    = require('uuid/v4');
 
-var csv2json = require("./libs/csv2json.js");
 
 // set the port of our application
 // process.env.PORT lets the port be set by Heroku
@@ -65,26 +63,22 @@ function csv2Json(req, res, next) {
       // check error and responce state
         if (!error && response.statusCode == 200) {
 
-            var convertedJson = csv2json.convert( body );
+          var csvJson = [];
 
+          csvToJson({noheader:true})
+          .fromString(body)
+          .on('json',(jsonObj)=>{ // this func will be called 3 times 
 
-            /*
+              csvJson.push(jsonObj)
+          })
+          .on('done',()=>{
 
-            if you want to retun json file use this code 
-            var fileUUid = uuidV4();
-          
-            res.writeHead(200, {
-              'Content-Type': 'text/json',
-              "Content-Disposition": "attachment; filename=Josn-" + fileUUid + ".json"
-            });
-            res.end( convertedJson );
-
-            */
-
-            res.setHeader("Content-Type", "application/json");
-            res.status(200).send(convertedJson)
-            next();
-            return;
+            console.log("REQUEST done");
+              //parsing finished 
+              res.status(200).send(csvJson);
+              next();
+              return;
+          });
         }
         else {
 
